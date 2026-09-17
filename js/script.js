@@ -8,6 +8,23 @@ const USER_KEY = "helpdeskUser";
 const LOGIN_KEY = "loggedIn";
 const TICKETS_KEY = "tickets";
 
+// Initial seed data including the CPU System Failure ticket
+const DEMO_TICKETS = [
+    {
+        id: "TKT-001049",
+        title: "Complete Workstation Crash – System Powering On But Failing POST",
+        category: "Hardware",
+        priority: "High",
+        description: "I was working on the end-of-month financial reconciliation when my computer froze instantly, went to a blue error screen, and shut down. Now when I press the power button, the computer tower lights up and the fans blow very loudly, but my screens stay completely dark. It keeps turning off and restarting itself every few seconds.",
+        status: "In Progress",
+        tech: "David M.",
+        createdBy: "mercy.wanjiku@company.com",
+        createdByName: "Mercy Wanjiku",
+        createdAt: new Date(Date.now() - 3600000 * 4).toISOString(),
+        updatedAt: new Date().toISOString()
+    }
+];
+
 function getUser() {
     try {
         return JSON.parse(localStorage.getItem(USER_KEY));
@@ -18,7 +35,12 @@ function getUser() {
 
 function getTickets() {
     try {
-        return JSON.parse(localStorage.getItem(TICKETS_KEY)) || [];
+        const stored = localStorage.getItem(TICKETS_KEY);
+        if (!stored) {
+            saveTickets(DEMO_TICKETS);
+            return DEMO_TICKETS;
+        }
+        return JSON.parse(stored) || [];
     } catch {
         return [];
     }
@@ -209,6 +231,7 @@ if (ticketForm) {
                 priority,
                 description: problemDescription,
                 status: "New",
+                tech: "Unassigned",
                 createdBy: user.email,
                 createdByName: user.name,
                 createdAt: new Date().toISOString(),
@@ -292,7 +315,7 @@ function loadDashboard() {
 
 
 // ==========================================
-// MY TICKETS
+// MY TICKETS (EMPLOYEE)
 // ==========================================
 
 function loadTickets() {
@@ -336,7 +359,90 @@ function loadTickets() {
 
 
 // ==========================================
-// HELPERS
+// ADMIN DASHBOARD & MANAGEMENT
+// ==========================================
+
+function loadAdminTickets() {
+    const tableBody = document.getElementById('ticketTableBody');
+    if (!tableBody) return;
+
+    const tickets = getTickets();
+    tableBody.innerHTML = ''; 
+
+    if (tickets.length === 0) {
+        tableBody.innerHTML = `<tr><td colspan="8" style="text-align:center; padding: 20px;">No tickets submitted yet.</td></tr>`;
+        return;
+    }
+
+    // Render newest tickets first
+    tickets.slice().reverse().forEach((ticket, reverseIndex) => {
+        const realIndex = tickets.length - 1 - reverseIndex;
+        const currentTech = ticket.tech || 'Unassigned';
+
+        tableBody.innerHTML += `
+            <tr class="ticket-row" data-status="${escapeHtml(ticket.status.toLowerCase().replace(' ', '-'))}">
+                <td><strong>${escapeHtml(ticket.id)}</strong></td>
+                <td>${escapeHtml(ticket.createdByName || ticket.createdBy || 'Unknown')}</td>
+                <td>${escapeHtml(ticket.category || 'General')}</td>
+                <td>${escapeHtml(ticket.title || ticket.description || 'N/A')}</td>
+                <td><span class="priority-badge ${escapeHtml((ticket.priority || 'medium').toLowerCase())}">${escapeHtml(ticket.priority || 'Medium')}</span></td>
+                <td>
+                    <select class="tech-select" onchange="updateTech(${realIndex}, this.value)">
+                        <option value="Unassigned" ${currentTech === 'Unassigned' ? 'selected' : ''}>Unassigned</option>
+                        <option value="David M." ${currentTech === 'David M.' ? 'selected' : ''}>David M.</option>
+                        <option value="Sarah K." ${currentTech === 'Sarah K.' ? 'selected' : ''}>Sarah K.</option>
+                    </select>
+                </td>
+                <td>
+                    <select onchange="updateStatus(${realIndex}, this.value)">
+                        <option value="New" ${ticket.status === 'New' ? 'selected' : ''}>New</option>
+                        <option value="In Progress" ${ticket.status === 'In Progress' ? 'selected' : ''}>In Progress</option>
+                        <option value="Resolved" ${ticket.status === 'Resolved' ? 'selected' : ''}>Resolved</option>
+                    </select>
+                </td>
+                <td><button class="btn-action" onclick="alert('Ticket ${escapeHtml(ticket.id)} updated successfully!')">Save</button></td>
+            </tr>
+        `;
+    });
+
+    updateAdminStats(tickets);
+}
+
+function updateTech(index, newTech) {
+    const tickets = getTickets();
+    if (tickets[index]) {
+        tickets[index].tech = newTech;
+        tickets[index].updatedAt = new Date().toISOString();
+        saveTickets(tickets);
+        updateAdminStats(tickets);
+    }
+}
+
+function updateStatus(index, newStatus) {
+    const tickets = getTickets();
+    if (tickets[index]) {
+        tickets[index].status = newStatus;
+        tickets[index].updatedAt = new Date().toISOString();
+        saveTickets(tickets);
+        updateAdminStats(tickets);
+    }
+}
+
+function updateAdminStats(tickets) {
+    const totalEl = document.querySelector('.stat-card:nth-child(1) .stat-number');
+    const pendingEl = document.querySelector('.stat-card.border-yellow .stat-number');
+    const progressEl = document.querySelector('.stat-card.border-blue .stat-number');
+    const resolvedEl = document.querySelector('.stat-card.border-green .stat-number');
+
+    if (totalEl) totalEl.textContent = tickets.length;
+    if (pendingEl) pendingEl.textContent = tickets.filter(t => t.status === 'New').length;
+    if (progressEl) progressEl.textContent = tickets.filter(t => t.status === 'In Progress').length;
+    if (resolvedEl) resolvedEl.textContent = tickets.filter(t => t.status === 'Resolved').length;
+}
+
+
+// ==========================================
+// HELPERS & INITIALIZATION
 // ==========================================
 
 function formatDate(value) {
@@ -357,4 +463,5 @@ function escapeHtml(value) {
 document.addEventListener("DOMContentLoaded", () => {
     loadDashboard();
     loadTickets();
+    loadAdminTickets();
 });

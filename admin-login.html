@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IT HelpDesk | Admin Login</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body class="auth-page">
+
+    <!-- Navigation -->
+    <header class="navbar">
+        <div class="logo">
+            <span>IT</span> HelpDesk <small class="badge-admin">Admin Portal</small>
+        </div>
+        <div class="nav-buttons">
+            <a href="index.html" class="secondary-btn">User Portal</a>
+        </div>
+    </header>
+
+    <!-- Admin Login Form Container -->
+    <main class="form-container admin-login-card">
+        <form id="admin-login-form" class="auth-form active-form" onsubmit="handleAdminLogin(event)">
+            <h2>IT Staff & Admin Access</h2>
+            <p>Sign in with your administrative credentials to manage tickets.</p>
+
+            <div id="error-message" class="error-banner" style="display: none;">
+                ⚠️ Invalid email or password.
+            </div>
+
+            <div class="form-group">
+                <label for="admin-email">Admin Email</label>
+                <input type="email" id="admin-email" placeholder="admin@helpdesk.com" required>
+            </div>
+
+            <div class="form-group">
+                <label for="admin-password">Password</label>
+                <input type="password" id="admin-password" placeholder="••••••••" required>
+            </div>
+
+            <div class="form-group">
+                <label for="admin-role">Role Access Level</label>
+                <select id="admin-role" required>
+                    <option value="admin">System Administrator</option>
+                    <option value="technician">IT Support Technician</option>
+                </select>
+            </div>
+
+            <div class="form-actions">
+                <label><input type="checkbox" checked> Keep session active</label>
+                <a href="#">Reset Admin Key</a>
+            </div>
+
+            <button type="submit" class="primary-btn full-width">Authenticate & Enter Dashboard</button>
+        </form>
+    </main>
+
+    <!-- Login Authentication Script -->
+   <script>
+    function handleAdminLogin(event) {
+        event.preventDefault();
+
+        const email = document.getElementById('admin-email').value;
+        const password = document.getElementById('admin-password').value;
+        const errorMessage = document.getElementById('error-message');
+
+        // Allows your email or any email with a password of 4+ characters
+        if (email && password.length >= 4) {
+            localStorage.setItem("isAdminLoggedIn", "true");
+            localStorage.setItem("activeAdminEmail", email);
+            window.location.href = "admin.html";
+        } else {
+            errorMessage.textContent = "⚠️ Please enter a valid email and a password (at least 4 characters).";
+            errorMessage.style.display = "block";
+        }
+    }
+</script>
+
+</body>
+</html>

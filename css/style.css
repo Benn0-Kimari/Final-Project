@@ -858,3 +858,48 @@ footer p {
         font-size: 29px;
     }
 }
+/* Admin Layout & Sidebar */
+.badge-admin { background: #e74c3c; color: #fff; padding: 2px 6px; font-size: 0.7rem; border-radius: 4px; margin-left: 5px; }
+.admin-navbar { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #e0e0e0; }
+.btn-sm { padding: 6px 12px; font-size: 0.85rem; }
+
+.admin-layout { display: flex; min-height: calc(100vh - 60px); }
+.sidebar { width: 220px; background: #1e293b; color: #fff; padding: 20px 0; }
+.sidebar-nav a { display: block; color: #94a3b8; padding: 12px 20px; text-decoration: none; font-size: 0.95rem; }
+.sidebar-nav a:hover, .sidebar-nav a.active { background: #334155; color: #fff; }
+
+.admin-main { flex: 1; padding: 25px; background: #f8fafc; }
+
+/* Dashboard Cards */
+.stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 25px; }
+.stat-card { background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); border-left: 4px solid #94a3b8; }
+.stat-card.border-yellow { border-left-color: #f1c40f; }
+.stat-card.border-blue { border-left-color: #3498db; }
+.stat-card.border-green { border-left-color: #2ecc71; }
+.stat-number { font-size: 1.8rem; font-weight: bold; margin: 5px 0; }
+.stat-desc { font-size: 0.8rem; color: #64748b; }
+
+/* Admin Table */
+.table-container { background: #fff; border-radius: 8px; padding: 20px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
+.table-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; flex-wrap: wrap; gap: 10px; }
+.filter-controls { display: flex; gap: 10px; }
+.filter-controls input, .filter-controls select { padding: 8px 12px; border: 1px solid #cbd5e1; border-radius: 6px; }
+
+.admin-table { width: 100%; border-collapse: collapse; text-align: left; font-size: 0.9rem; }
+.admin-table th, .admin-table td { padding: 12px 10px; border-bottom: 1px solid #e2e8f0; }
+.admin-table th { background: #f1f5f9; color: #475569; }
+
+/* Status & Priority Pills */
+.status-pill { padding: 4px 8px; border-radius: 12px; font-size: 0.75rem; font-weight: 600; }
+.status-pill.new { background: #fef3c7; color: #d97706; }
+.status-pill.progress { background: #e0f2fe; color: #0284c7; }
+.status-pill.resolved { background: #dcfce7; color: #15803d; }
+
+.priority-badge { font-size: 0.75rem; font-weight: bold; }
+.priority-badge.medium { color: #d97706; }
+.priority-badge.high { color: #ea580c; }
+.priority-badge.urgent { color: #dc2626; }
+
+.tech-select { padding: 4px; border-radius: 4px; border: 1px solid #cbd5e1; }
+.btn-action { padding: 5px 12px; background: #2563eb; color: #fff; border: none; border-radius: 4px; cursor: pointer; }
+.btn-action:hover { background: #1d4ed8; }
