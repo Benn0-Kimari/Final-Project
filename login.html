@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login | IT HelpDesk</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body class="auth-page">
+
+<header class="navbar">
+    <a href="index.html" class="logo"><span>IT</span> HelpDesk</a>
+    <nav>
+        <a href="index.html">Home</a>
+        <a href="index.html#services">Services</a>
+        <a href="index.html#how-it-works">How It Works</a>
+        <a href="index.html#about">About</a>
+    </nav>
+    <div class="nav-buttons">
+        <a href="register.html" class="primary-btn">Create Account</a>
+    </div>
+</header>
+
+<main class="auth-container">
+    <section class="auth-card">
+        <div class="auth-icon">🔐</div>
+        <span class="page-label">SECURE ACCESS</span>
+        <h1>Welcome Back</h1>
+        <p class="auth-subtitle">Sign in to report and track your IT support requests.</p>
+
+        <form id="loginForm" class="auth-form">
+            <div class="form-group">
+                <label for="email">Email Address</label>
+                <input type="email" id="email" placeholder="you@example.com" required>
+            </div>
+
+            <div class="form-group">
+                <label for="password">Password</label>
+                <input type="password" id="password" minlength="6" placeholder="Enter your password" required>
+            </div>
+
+            <div id="loginMessage" class="form-message" hidden></div>
+
+            <button type="submit" class="primary-btn auth-submit">Sign In</button>
+        </form>
+
+        <p class="auth-footer">
+            Don't have an account?
+            <a href="register.html">Create one</a>
+        </p>
+
+        <a href="index.html" class="back-link">← Back to Home</a>
+    </section>
+</main>
+
+<script src="js/script.js"></script>
+</body>
+</html>

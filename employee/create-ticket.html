@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Report a Fault | IT HelpDesk</title>
+    <link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+
+<header class="navbar">
+    <div class="logo"><span>IT</span> HelpDesk</div>
+
+    <nav>
+        <a href="dashboard.html">Dashboard</a>
+        <a href="create-ticket.html" class="active">Report Fault</a>
+        <a href="tickets.html">My Tickets</a>
+        <a href="../index.html">Home</a>
+    </nav>
+
+    <button type="button" onclick="logout()" class="logout-btn">Logout</button>
+</header>
+
+<main class="form-container">
+    <div class="form-header">
+        <span class="page-label">SUPPORT REQUEST</span>
+        <h1>Report an IT Problem</h1>
+        <p>Give us enough information to help the IT team diagnose and resolve your problem quickly.</p>
+    </div>
+
+    <form id="ticketForm" class="ticket-form">
+        <div class="form-group">
+            <label for="title">Problem Title</label>
+            <input type="text" id="title" maxlength="100"
+                   placeholder="e.g. Computer cannot connect to Wi-Fi" required>
+        </div>
+
+        <div class="form-row">
+            <div class="form-group">
+                <label for="category">Category</label>
+                <select id="category" required>
+                    <option value="">Select category</option>
+                    <option value="Hardware">Hardware</option>
+                    <option value="Software">Software</option>
+                    <option value="Network">Network</option>
+                    <option value="Email">Email</option>
+                    <option value="Security">Security</option>
+                    <option value="Access">Access / Account</option>
+                    <option value="Other">Other</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="priority">Priority</label>
+                <select id="priority" required>
+                    <option value="">Select priority</option>
+                    <option value="Low">Low</option>
+                    <option value="Medium">Medium</option>
+                    <option value="High">High</option>
+                    <option value="Critical">Critical</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label for="description">Problem Description</label>
+            <textarea id="description" rows="7" maxlength="1000"
+                      placeholder="Describe what happened, when it started, and any error message you saw..." required></textarea>
+            <small id="descriptionCount" class="field-help">0 / 1000</small>
+        </div>
+
+        <div id="ticketMessage" class="form-message" hidden></div>
+
+        <div class="form-actions">
+            <a href="dashboard.html" class="secondary-btn">Cancel</a>
+            <button type="submit" class="primary-btn">Submit Fault</button>
+        </div>
+    </form>
+</main>
+
+<script src="../js/script.js"></script>
+</body>
+</html>

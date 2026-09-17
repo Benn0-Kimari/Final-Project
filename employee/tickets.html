@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>My Tickets | IT HelpDesk</title>
+
+    <link rel="stylesheet" href="../css/style.css">
+
+</head>
+
+
+<body>
+
+
+<header class="navbar">
+
+    <div class="logo">
+        IT HelpDesk
+    </div>
+
+
+    <nav>
+
+        <a href="dashboard.html">
+            Dashboard
+        </a>
+
+        <a href="create-ticket.html">
+            Report Fault
+        </a>
+
+        <a href="tickets.html">
+            My Tickets
+        </a>
+
+        <a href="../index.html">
+            Home
+        </a>
+
+    </nav>
+
+
+    <button onclick="logout()" class="logout-btn">
+        Logout
+    </button>
+
+</header>
+
+
+
+<main class="dashboard-container">
+
+
+    <div class="dashboard-header">
+
+        <div>
+
+            <h1>
+                My Tickets
+            </h1>
+
+            <p>
+                Track all IT problems you have reported.
+            </p>
+
+        </div>
+
+
+        <a href="create-ticket.html"
+           class="primary-btn">
+
+            + Report a Problem
+
+        </a>
+
+    </div>
+
+
+
+    <section class="dashboard-section">
+
+        <div id="allTickets"
+             class="ticket-list">
+
+            <p>
+                No tickets submitted yet.
+            </p>
+
+        </div>
+
+    </section>
+
+
+</main>
+
+
+
+<script src="../js/script.js"></script>
+
+
+</body>
+
+</html>
