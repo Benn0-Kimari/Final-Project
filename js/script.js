@@ -1,21 +1,22 @@
 // ==========================================
-// IT HELPDESK - FUNCTIONAL FRONTEND
-// Demo data is stored in localStorage.
-// Firebase will replace this storage layer later.
+// IT HELPDESK - FUNCTIONAL FRONTEND SCRIPT
+// Storage Layer: LocalStorage (Multi-User & Admin Support)
 // ==========================================
 
-const USER_KEY = "helpdeskUser";
+const USERS_KEY = "helpdeskUsers";
+const CURRENT_USER_KEY = "helpdeskCurrentUser";
 const LOGIN_KEY = "loggedIn";
+const ADMIN_LOGIN_KEY = "isAdminLoggedIn";
 const TICKETS_KEY = "tickets";
 
-// Initial seed data including the CPU System Failure ticket
+// Seed Data for Default Tickets
 const DEMO_TICKETS = [
     {
         id: "TKT-001049",
         title: "Complete Workstation Crash – System Powering On But Failing POST",
         category: "Hardware",
         priority: "High",
-        description: "I was working on the end-of-month financial reconciliation when my computer froze instantly, went to a blue error screen, and shut down. Now when I press the power button, the computer tower lights up and the fans blow very loudly, but my screens stay completely dark. It keeps turning off and restarting itself every few seconds.",
+        description: "I was working on the end-of-month financial reconciliation when my computer froze instantly, went to a blue error screen, and shut down. System restarts continuously.",
         status: "In Progress",
         tech: "David M.",
         createdBy: "mercy.wanjiku@company.com",
@@ -25,12 +26,74 @@ const DEMO_TICKETS = [
     }
 ];
 
-function getUser() {
+// Seed Data for Default Users
+const DEMO_USERS = [
+    {
+        name: "Mercy Wanjiku",
+        email: "mercy.wanjiku@company.com",
+        password: "password123",
+        role: "employee",
+        createdAt: new Date().toISOString()
+    }
+];
+
+// ------------------------------------------
+// DYNAMIC PATH HELPER
+// ------------------------------------------
+
+function resolvePath(targetPath) {
+    const isSubfolder = window.location.pathname.includes("/employee/") || window.location.pathname.includes("/admin/");
+    
+    if (targetPath.startsWith("employee/") || targetPath.startsWith("admin/")) {
+        const currentFolder = window.location.pathname.includes("/employee/") ? "employee/" : 
+                             window.location.pathname.includes("/admin/") ? "admin/" : "";
+        
+        if (currentFolder && targetPath.startsWith(currentFolder)) {
+            return targetPath.replace(currentFolder, "");
+        }
+        if (isSubfolder) {
+            return "../" + targetPath;
+        }
+    }
+    
+    if (isSubfolder) {
+        return "../" + targetPath;
+    }
+    
+    return targetPath;
+}
+
+// ------------------------------------------
+// AUTHENTICATION & STORAGE HELPERS
+// ------------------------------------------
+
+function getUsers() {
     try {
-        return JSON.parse(localStorage.getItem(USER_KEY));
+        const stored = localStorage.getItem(USERS_KEY);
+        if (!stored) {
+            localStorage.setItem(USERS_KEY, JSON.stringify(DEMO_USERS));
+            return DEMO_USERS;
+        }
+        return JSON.parse(stored) || [];
+    } catch {
+        return [];
+    }
+}
+
+function saveUsers(users) {
+    localStorage.setItem(USERS_KEY, JSON.stringify(users));
+}
+
+function getCurrentUser() {
+    try {
+        return JSON.parse(localStorage.getItem(CURRENT_USER_KEY));
     } catch {
         return null;
     }
+}
+
+function setCurrentUser(user) {
+    localStorage.setItem(CURRENT_USER_KEY, JSON.stringify(user));
 }
 
 function getTickets() {
@@ -60,12 +123,24 @@ function showMessage(id, message, type = "error") {
 }
 
 function isLoggedIn() {
-    return localStorage.getItem(LOGIN_KEY) === "true" && !!getUser();
+    return localStorage.getItem(LOGIN_KEY) === "true" && !!getCurrentUser();
+}
+
+function isAdminLoggedIn() {
+    return localStorage.getItem(ADMIN_LOGIN_KEY) === "true";
 }
 
 function protectEmployeePage() {
     if (!isLoggedIn()) {
-        window.location.href = "../login.html";
+        window.location.href = resolvePath("login.html");
+        return false;
+    }
+    return true;
+}
+
+function protectAdminPage() {
+    if (!isAdminLoggedIn()) {
+        window.location.href = resolvePath("admin-login.html");
         return false;
     }
     return true;
@@ -73,13 +148,24 @@ function protectEmployeePage() {
 
 function logout() {
     localStorage.removeItem(LOGIN_KEY);
-    window.location.href = "../index.html";
+    localStorage.removeItem(CURRENT_USER_KEY);
+    window.location.href = resolvePath("index.html");
 }
 
+function adminLogout() {
+    localStorage.removeItem(ADMIN_LOGIN_KEY);
+    localStorage.removeItem("activeAdminEmail");
+    localStorage.removeItem("adminRole");
+    window.location.href = resolvePath("admin-login.html");
+}
 
-// ==========================================
-// REGISTER
-// ==========================================
+// Attach logout handlers to global scope for HTML onclick events
+window.logout = logout;
+window.adminLogout = adminLogout;
+
+// ------------------------------------------
+// REGISTRATION HANDLER (MULTI-USER SUPPORT)
+// ------------------------------------------
 
 const registerForm = document.getElementById("registerForm");
 
@@ -107,14 +193,15 @@ if (registerForm) {
             return;
         }
 
-        const existing = getUser();
+        const users = getUsers();
+        const existing = users.find(u => u.email === email);
 
-        if (existing && existing.email === email) {
+        if (existing) {
             showMessage("registerMessage", "An account with this email already exists. Please sign in.");
             return;
         }
 
-        const user = {
+        const newUser = {
             name,
             email,
             password,
@@ -122,8 +209,8 @@ if (registerForm) {
             createdAt: new Date().toISOString()
         };
 
-        localStorage.setItem(USER_KEY, JSON.stringify(user));
-        localStorage.setItem(LOGIN_KEY, "false");
+        users.push(newUser);
+        saveUsers(users);
 
         showMessage(
             "registerMessage",
@@ -132,15 +219,14 @@ if (registerForm) {
         );
 
         setTimeout(() => {
-            window.location.href = "login.html";
+            window.location.href = resolvePath("login.html");
         }, 800);
     });
 }
 
-
-// ==========================================
-// LOGIN
-// ==========================================
+// ------------------------------------------
+// EMPLOYEE LOGIN HANDLER
+// ------------------------------------------
 
 const loginForm = document.getElementById("loginForm");
 
@@ -151,24 +237,18 @@ if (loginForm) {
         const email = document.getElementById("email").value.trim().toLowerCase();
         const password = document.getElementById("password").value;
 
-        const user = getUser();
+        const users = getUsers();
+        const user = users.find(u => u.email === email && u.password === password);
 
         if (!user) {
             showMessage(
                 "loginMessage",
-                "No account found. Please create an account first."
+                "Incorrect email or password. Please try again or create an account."
             );
             return;
         }
 
-        if (email !== user.email || password !== user.password) {
-            showMessage(
-                "loginMessage",
-                "Incorrect email or password. Please try again."
-            );
-            return;
-        }
-
+        setCurrentUser(user);
         localStorage.setItem(LOGIN_KEY, "true");
 
         showMessage(
@@ -178,22 +258,58 @@ if (loginForm) {
         );
 
         setTimeout(() => {
-            window.location.href = "employee/dashboard.html";
+            window.location.href = resolvePath("employee/dashboard.html");
         }, 500);
     });
 }
 
+// ------------------------------------------
+// ADMIN LOGIN HANDLER
+// ------------------------------------------
 
-// ==========================================
-// TICKET CREATION
-// ==========================================
+const adminLoginForm = document.getElementById("adminLoginForm");
+
+if (adminLoginForm) {
+    adminLoginForm.addEventListener("submit", (event) => {
+        event.preventDefault();
+
+        const email = document.getElementById("adminEmail").value.trim().toLowerCase();
+        const password = document.getElementById("adminPassword").value;
+
+        // Default Admin Authentication Check
+        if (email === "admin@company.com" && password === "admin123") {
+            localStorage.setItem(ADMIN_LOGIN_KEY, "true");
+            localStorage.setItem("activeAdminEmail", email);
+            localStorage.setItem("adminRole", "IT Admin");
+
+            showMessage(
+                "adminLoginMessage",
+                "Admin authentication successful. Opening Admin Portal...",
+                "success"
+            );
+
+            setTimeout(() => {
+                // Navigates to admin-dashboard.html (or admin/dashboard.html if subfolder structured)
+                const targetAdminDash = document.referrer.includes("/admin/") ? "dashboard.html" : "admin-dashboard.html";
+                window.location.href = resolvePath(targetAdminDash);
+            }, 600);
+        } else {
+            showMessage(
+                "adminLoginMessage",
+                "Invalid admin credentials. Use admin@company.com / admin123"
+            );
+        }
+    });
+}
+
+// ------------------------------------------
+// TICKET CREATION HANDLER
+// ------------------------------------------
 
 const ticketForm = document.getElementById("ticketForm");
 
 if (ticketForm) {
-    if (!protectEmployeePage()) {
-        // Stop setting up the form when the user is not authenticated.
-    } else {
+    if (protectEmployeePage()) {
         const description = document.getElementById("description");
         const counter = document.getElementById("descriptionCount");
 
@@ -208,9 +324,9 @@ if (ticketForm) {
         ticketForm.addEventListener("submit", (event) => {
             event.preventDefault();
 
-            const user = getUser();
+            const user = getCurrentUser();
             if (!user) {
-                window.location.href = "../login.html";
+                window.location.href = resolvePath("login.html");
                 return;
             }
 
@@ -244,23 +360,22 @@ if (ticketForm) {
 
             showMessage(
                 "ticketMessage",
-                `Ticket ${ticket.id} was submitted successfully. Redirecting to My Tickets...`,
+                `Ticket ${ticket.id} submitted successfully. Redirecting to My Tickets...`,
                 "success"
             );
 
             ticketForm.reset();
 
             setTimeout(() => {
-                window.location.href = "tickets.html";
+                window.location.href = resolvePath("employee/tickets.html");
             }, 700);
         });
     }
 }
 
-
-// ==========================================
+// ------------------------------------------
 // EMPLOYEE DASHBOARD
-// ==========================================
+// ------------------------------------------
 
 function loadDashboard() {
     const recentTickets = document.getElementById("recentTickets");
@@ -268,7 +383,7 @@ function loadDashboard() {
 
     if (!protectEmployeePage()) return;
 
-    const user = getUser();
+    const user = getCurrentUser();
     const tickets = getTickets();
 
     const userTickets = tickets.filter(ticket => ticket.createdBy === user.email);
@@ -293,7 +408,7 @@ function loadDashboard() {
             <div class="empty-state">
                 <h3>No tickets yet</h3>
                 <p>Report your first IT problem and track it from this dashboard.</p>
-                <a href="create-ticket.html" class="primary-btn">Report a Problem</a>
+                <a href="${resolvePath('employee/create-ticket.html')}" class="primary-btn">Report a Problem</a>
             </div>
         `;
         return;
@@ -313,10 +428,9 @@ function loadDashboard() {
     `).join("");
 }
 
-
-// ==========================================
+// ------------------------------------------
 // MY TICKETS (EMPLOYEE)
-// ==========================================
+// ------------------------------------------
 
 function loadTickets() {
     const allTickets = document.getElementById("allTickets");
@@ -324,7 +438,7 @@ function loadTickets() {
 
     if (!protectEmployeePage()) return;
 
-    const user = getUser();
+    const user = getCurrentUser();
     const tickets = getTickets();
 
     const userTickets = tickets
@@ -336,7 +450,7 @@ function loadTickets() {
             <div class="empty-state">
                 <h3>No tickets found</h3>
                 <p>You have not reported any IT problems yet.</p>
-                <a href="create-ticket.html" class="primary-btn">Report a Problem</a>
+                <a href="${resolvePath('employee/create-ticket.html')}" class="primary-btn">Report a Problem</a>
             </div>
         `;
         return;
@@ -357,14 +471,15 @@ function loadTickets() {
     `).join("");
 }
 
-
-// ==========================================
+// ------------------------------------------
 // ADMIN DASHBOARD & MANAGEMENT
-// ==========================================
+// ------------------------------------------
 
 function loadAdminTickets() {
     const tableBody = document.getElementById('ticketTableBody');
     if (!tableBody) return;
+
+    if (!protectAdminPage()) return;
 
     const tickets = getTickets();
     tableBody.innerHTML = ''; 
@@ -374,7 +489,6 @@ function loadAdminTickets() {
         return;
     }
 
-    // Render newest tickets first
     tickets.slice().reverse().forEach((ticket, reverseIndex) => {
         const realIndex = tickets.length - 1 - reverseIndex;
         const currentTech = ticket.tech || 'Unassigned';
@@ -387,14 +501,14 @@ function loadAdminTickets() {
                 <td>${escapeHtml(ticket.title || ticket.description || 'N/A')}</td>
                 <td><span class="priority-badge ${escapeHtml((ticket.priority || 'medium').toLowerCase())}">${escapeHtml(ticket.priority || 'Medium')}</span></td>
                 <td>
-                    <select class="tech-select" onchange="updateTech(${realIndex}, this.value)">
+                    <select class="tech-select" onchange="window.updateTech(${realIndex}, this.value)">
                         <option value="Unassigned" ${currentTech === 'Unassigned' ? 'selected' : ''}>Unassigned</option>
                         <option value="David M." ${currentTech === 'David M.' ? 'selected' : ''}>David M.</option>
                         <option value="Sarah K." ${currentTech === 'Sarah K.' ? 'selected' : ''}>Sarah K.</option>
                     </select>
                 </td>
                 <td>
-                    <select onchange="updateStatus(${realIndex}, this.value)">
+                    <select onchange="window.updateStatus(${realIndex}, this.value)">
                         <option value="New" ${ticket.status === 'New' ? 'selected' : ''}>New</option>
                         <option value="In Progress" ${ticket.status === 'In Progress' ? 'selected' : ''}>In Progress</option>
                         <option value="Resolved" ${ticket.status === 'Resolved' ? 'selected' : ''}>Resolved</option>
@@ -440,10 +554,13 @@ function updateAdminStats(tickets) {
     if (resolvedEl) resolvedEl.textContent = tickets.filter(t => t.status === 'Resolved').length;
 }
 
+// Attach dynamic table listeners to window scope
+window.updateTech = updateTech;
+window.updateStatus = updateStatus;
 
-// ==========================================
+// ------------------------------------------
 // HELPERS & INITIALIZATION
-// ==========================================
+// ------------------------------------------
 
 function formatDate(value) {
     const date = new Date(value);

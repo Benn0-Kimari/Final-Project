@@ -3,78 +3,62 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Employee Dashboard | IT HelpDesk</title>
-    <link rel="stylesheet" href="../css/style.css">
+    <title>Admin Dashboard | IT HelpDesk</title>
+    <link rel="stylesheet" href="css/style.css">
 </head>
-
 <body>
 
 <header class="navbar">
-    <div class="logo">IT HelpDesk</div>
-
+    <a href="index.html" class="logo"><span>IT</span> HelpDesk <small>(Admin)</small></a>
     <nav>
-        <a href="dashboard.html">Dashboard</a>
-        <a href="create-ticket.html">Report Fault</a>
-        <a href="tickets.html">My Tickets</a>
-        <a href="../index.html">Home</a>
+        <a href="admin-dashboard.html">All Tickets</a>
     </nav>
-
-    <button onclick="logout()" class="logout-btn">Logout</button>
+    <div class="nav-buttons">
+        <button onclick="adminLogout()" class="secondary-btn">Sign Out</button>
+    </div>
 </header>
 
-<main class="dashboard-container">
-
-    <div class="dashboard-header">
-        <div>
-            <h1>Employee Dashboard</h1>
-            <p>Welcome back, <span id="userName">Employee</span>.</p>
+<main class="dashboard-container" style="padding: 30px;">
+    <h1>System Ticket Management</h1>
+    
+    <div class="stats-grid" style="display: flex; gap: 20px; margin: 20px 0;">
+        <div class="stat-card" style="padding: 15px; border: 1px solid #ccc; flex: 1;">
+            <h3>Total Tickets</h3>
+            <p class="stat-number" style="font-size: 24px; font-weight: bold;">0</p>
         </div>
-
-        <a href="create-ticket.html" class="primary-btn">
-            + Report a Problem
-        </a>
+        <div class="stat-card border-yellow" style="padding: 15px; border: 1px solid #ccc; flex: 1;">
+            <h3>New</h3>
+            <p class="stat-number" style="font-size: 24px; font-weight: bold;">0</p>
+        </div>
+        <div class="stat-card border-blue" style="padding: 15px; border: 1px solid #ccc; flex: 1;">
+            <h3>In Progress</h3>
+            <p class="stat-number" style="font-size: 24px; font-weight: bold;">0</p>
+        </div>
+        <div class="stat-card border-green" style="padding: 15px; border: 1px solid #ccc; flex: 1;">
+            <h3>Resolved</h3>
+            <p class="stat-number" style="font-size: 24px; font-weight: bold;">0</p>
+        </div>
     </div>
 
-    <section class="stats-grid">
-
-        <div class="stat-card">
-            <h3>Total Tickets</h3>
-            <p id="totalTickets">0</p>
-        </div>
-
-        <div class="stat-card">
-            <h3>Open Tickets</h3>
-            <p id="openTickets">0</p>
-        </div>
-
-        <div class="stat-card">
-            <h3>In Progress</h3>
-            <p id="progressTickets">0</p>
-        </div>
-
-        <div class="stat-card">
-            <h3>Resolved</h3>
-            <p id="resolvedTickets">0</p>
-        </div>
-
-    </section>
-
-    <section class="dashboard-section">
-
-        <div class="section-header">
-            <h2>Recent Tickets</h2>
-            <a href="tickets.html">View All</a>
-        </div>
-
-        <div id="recentTickets" class="ticket-list">
-            <p>No tickets submitted yet.</p>
-        </div>
-
-    </section>
-
+    <table class="ticket-table" style="width: 100%; border-collapse: collapse; text-align: left;">
+        <thead>
+            <tr style="background-color: #f4f4f4;">
+                <th>ID</th>
+                <th>User</th>
+                <th>Category</th>
+                <th>Title / Description</th>
+                <th>Priority</th>
+                <th>Assigned Tech</th>
+                <th>Status</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody id="ticketTableBody">
+            <!-- Dynamically populated by loadAdminTickets() in script.js -->
+        </tbody>
+    </table>
 </main>
 
-<script src="../js/script.js"></script>
-
+<script src="js/script.js"></script>
 </body>
 </html>

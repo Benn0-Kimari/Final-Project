@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard | IT HelpDesk</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body class="admin-page">
+
+    <!-- Header Navigation -->
+    <header class="navbar">
+        <a href="index.html" class="logo">
+            <span>IT</span> HelpDesk <span class="badge-admin">Admin Portal</span>
+        </a>
+        <nav>
+            <a href="admin-dashboard.html" class="active">Ticket Queue</a>
+        </nav>
+        <div class="nav-buttons">
+            <button onclick="adminLogout()" class="secondary-btn logout-btn">Sign Out</button>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="dashboard-container">
+        
+        <div class="dashboard-header">
+            <div>
+                <h1>System Ticket Management</h1>
+                <p>Assign technicians, update issue statuses, and track system support activity.</p>
+            </div>
+        </div>
+
+        <!-- Metrics Overview -->
+        <section class="stats-grid">
+            <div class="stat-card">
+                <h3>Total Tickets</h3>
+                <p class="stat-number">0</p>
+                <small>All time</small>
+            </div>
+            <div class="stat-card border-yellow">
+                <h3>New / Pending</h3>
+                <p class="stat-number">0</p>
+                <small>Awaiting assignment</small>
+            </div>
+            <div class="stat-card border-blue">
+                <h3>In Progress</h3>
+                <p class="stat-number">0</p>
+                <small>Under investigation</small>
+            </div>
+            <div class="stat-card border-green">
+                <h3>Resolved</h3>
+                <p class="stat-number">0</p>
+                <small>Completed issues</small>
+            </div>
+        </section>
+
+        <!-- Tickets Table Section -->
+        <section class="table-container">
+            <div class="table-header">
+                <h2>All Support Requests</h2>
+            </div>
+
+            <div class="table-wrapper">
+                <table class="ticket-table">
+                    <thead>
+                        <tr>
+                            <th>Ticket ID</th>
+                            <th>Submitted By</th>
+                            <th>Category</th>
+                            <th>Title / Description</th>
+                            <th>Priority</th>
+                            <th>Assigned Tech</th>
+                            <th>Status</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody id="ticketTableBody">
+                        <!-- Populated dynamically via script.js -->
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+    </main>
+
+    <script src="js/script.js"></script>
+</body>
+</html>
